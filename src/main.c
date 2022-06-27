@@ -149,6 +149,30 @@ PRIVATE char variable_config[]= "\
                         'roles^root^users',                         \n\
                         'roles^owner^users'                         \n\
                     ]                                               \n\
+                },                                                  \n\
+                {                                                   \n\
+                    'id': 'ginsmar@gmail.com',                      \n\
+                    'roles': [                                      \n\
+                        'roles^manage-controlcenter^users',         \n\
+                        'roles^manage-authzs^users',                \n\
+                        'roles^root^users'                          \n\
+                    ]                                               \n\
+                },                                                  \n\
+                {                                                   \n\
+                    'id': 'ginsmar@mulesol.es',                     \n\
+                    'roles': [                                      \n\
+                        'roles^manage-controlcenter^users',         \n\
+                        'roles^manage-authzs^users',                \n\
+                        'roles^root^users'                          \n\
+                    ]                                               \n\
+                },                                                  \n\
+                {                                                   \n\
+                    'id': 'cochoa@mulesol.es',                      \n\
+                    'roles': [                                      \n\
+                        'roles^manage-controlcenter^users',         \n\
+                        'roles^manage-authzs^users',                \n\
+                        'roles^root^users'                          \n\
+                    ]                                               \n\
                 }                                                   \n\
             ]                                                       \n\
         },                                                          \n\
