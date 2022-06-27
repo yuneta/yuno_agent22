@@ -93,12 +93,20 @@ SDATAPM (ASN_OCTET_STR, "name",         0,              "",         "Name of con
 SDATAPM (ASN_BOOLEAN,   "force",        0,              0,          "Force to close although hold_open TRUE"),
 SDATA_END()
 };
+PRIVATE sdata_desc_t pm_write_tty[] = {
+/*-PM----type-----------name------------flag------------default-----description---------- */
+    SDATAPM (ASN_OCTET_STR, "name",         0,              0,          "Name of console"),
+    SDATAPM (ASN_OCTET_STR, "content64",    0,              0,          "Content64 data to write to tty"),
+    SDATA_END()
+};
 
 PRIVATE const char *a_help[] = {"h", "?", 0};
+PRIVATE const char *a_write_tty[] = {"EV_WRITE_TTY", 0};
 
 PRIVATE sdata_desc_t command_table[] = {
 /*-CMD2--type-----------name----------------flag----------------alias---------------items-----------json_fn---------description---------- */
 SDATACM2 (ASN_SCHEMA,   "help",             0,                  a_help,             pm_help,        cmd_help,       "Command's help"),
+SDATACM2 (ASN_SCHEMA,   "write-tty",        0,                  a_write_tty,        pm_write_tty,   0,              "Write data to tty"),
 // HACK DANGER backdoor, use Yuneta only in private networks, or public but encrypted and assured connections.
 SDATACM2 (ASN_SCHEMA,    "list-consoles",   0,                  0,                  0,              cmd_list_consoles, "List consoles"),
 SDATACM2 (ASN_SCHEMA,    "open-console",    0,                  0,                  pm_open_console,cmd_open_console, "Open console"),
