@@ -65,6 +65,9 @@ PRIVATE int remove_console_route(
 /***************************************************************************
  *          Data: config, public data, private data
  ***************************************************************************/
+PRIVATE int atexit_registered = 0; /* Register atexit just 1 time. */
+PRIVATE const char *pidfile = "/yuneta/realms/agent/yuneta_agent22.pid";
+
 PRIVATE json_t *cmd_help(hgobj gobj, const char *cmd, json_t *kw, hgobj src);
 PRIVATE json_t *cmd_list_consoles(hgobj gobj, const char *cmd, json_t *kw, hgobj src);
 PRIVATE json_t *cmd_open_console(hgobj gobj, const char *cmd, json_t *kw, hgobj src);
@@ -188,12 +191,25 @@ typedef struct _PRIVATE_DATA {
 
 
 
+/*****************************************************************
+ *
+ *****************************************************************/
+PUBLIC void program_end(void)
+{
+    unlink(pidfile);
+}
+
 /***************************************************************************
  *      Framework Method create
  ***************************************************************************/
 PRIVATE void mt_create(hgobj gobj)
 {
     PRIVATE_DATA *priv = gobj_priv_data(gobj);
+
+    if (!atexit_registered) {
+        atexit(program_end);
+        atexit_registered = 1;
+    }
 
     /*----------------------------------------*
      *  Check node_owner
@@ -246,7 +262,6 @@ PRIVATE void mt_create(hgobj gobj)
      *      Check if already running
      *---------------------------------------*/
     {
-        const char *pidfile = "/yuneta/realms/agent/yuneta_agent22.pid";
         int pid = 0;
 
         FILE *file = fopen(pidfile, "r");
@@ -349,6 +364,7 @@ PRIVATE void mt_destroy(hgobj gobj)
         rotatory_close(priv->audit_file);
         priv->audit_file = 0;
     }
+    unlink(pidfile);
 }
 
 /***************************************************************************
