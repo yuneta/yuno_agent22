@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <grp.h>
 #include <errno.h>
-#include <regex.h>
+#include <pcre2posix.h>
 #include <unistd.h>
 #include "c_agent22.h"
 
