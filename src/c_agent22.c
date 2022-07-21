@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <grp.h>
 #include <errno.h>
-#include <pcre2posix.h>
+#include <regex.h>
 #include <unistd.h>
 #include "c_agent22.h"
 
@@ -65,8 +65,6 @@ PRIVATE int remove_console_route(
 /***************************************************************************
  *          Data: config, public data, private data
  ***************************************************************************/
-PRIVATE const char *pidfile = "/yuneta/realms/agent/yuneta_agent22.pid";
-
 PRIVATE json_t *cmd_help(hgobj gobj, const char *cmd, json_t *kw, hgobj src);
 PRIVATE json_t *cmd_list_consoles(hgobj gobj, const char *cmd, json_t *kw, hgobj src);
 PRIVATE json_t *cmd_open_console(hgobj gobj, const char *cmd, json_t *kw, hgobj src);
@@ -190,25 +188,6 @@ typedef struct _PRIVATE_DATA {
 
 
 
-/*****************************************************************
- *
- *****************************************************************/
-PRIVATE int is_yuneta_agent22(unsigned int pid)
-{
-    struct pid_stats pst;
-    int ret = kill(pid, 0);
-    if(ret == 0) {
-        if(read_proc_pid_cmdline(pid, &pst, 0)==0) {
-            if(strstr(pst.cmdline, "yuneta_agent22 ")) {
-                return 0;
-            }
-        } else {
-            return -1;
-        }
-    }
-    return ret;
-}
-
 /***************************************************************************
  *      Framework Method create
  ***************************************************************************/
@@ -267,6 +246,7 @@ PRIVATE void mt_create(hgobj gobj)
      *      Check if already running
      *---------------------------------------*/
     {
+        const char *pidfile = "/yuneta/realms/agent/yuneta_agent22.pid";
         int pid = 0;
 
         FILE *file = fopen(pidfile, "r");
@@ -274,9 +254,9 @@ PRIVATE void mt_create(hgobj gobj)
             fscanf(file, "%d", &pid);
             fclose(file);
 
-            int ret = is_yuneta_agent22(pid);
+            int ret = kill(pid, 0);
             if(ret == 0) {
-                log_warning(0,
+                log_info(0,
                     "gobj",         "%s", gobj_full_name(gobj),
                     "function",     "%s", __FUNCTION__,
                     "msgset",       "%s", MSGSET_INFO,
@@ -298,7 +278,6 @@ PRIVATE void mt_create(hgobj gobj)
                     "serrno",       "%s", strerror(errno),
                     NULL
                 );
-                unlink(pidfile);
             }
 
         }
@@ -370,7 +349,6 @@ PRIVATE void mt_destroy(hgobj gobj)
         rotatory_close(priv->audit_file);
         priv->audit_file = 0;
     }
-    unlink(pidfile);
 }
 
 /***************************************************************************
