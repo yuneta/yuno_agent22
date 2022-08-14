@@ -40,8 +40,6 @@
 /***************************************************************************
  *              Prototypes
  ***************************************************************************/
-PRIVATE int audit_command_cb(const char *command, json_t *kw, void *user_data);
-
 PRIVATE int add_console_in_input_gate(hgobj gobj, const char *name, hgobj src);
 PRIVATE int add_console_route(
     hgobj gobj,
@@ -178,7 +176,6 @@ typedef struct _PRIVATE_DATA {
 
     hgobj resource;
     hgobj timer;
-    hrotatory_t audit_file;
 } PRIVATE_DATA;
 
 
@@ -323,26 +320,6 @@ PRIVATE void mt_create(hgobj gobj)
         }
     }
 
-    if(1) {
-        /*-----------------------------*
-         *      Audit
-         *-----------------------------*/
-        char audit_path[NAME_MAX];
-        yuneta_realm_file(audit_path, sizeof(audit_path), "audit", "ZZZ-DD_MM_CCYY.log", TRUE);
-        priv->audit_file = rotatory_open(
-            audit_path,
-            0,                      // 0 = default 64K
-            0,                      // 0 = default 8
-            0,                      // 0 = default 10
-            yuneta_xpermission(),   // permission for directories and executable files. 0 = default 02775
-            0660,                   // permission for regular files. 0 = default 0664
-            TRUE
-        );
-        if(priv->audit_file) {
-            gobj_audit_commands(audit_command_cb, gobj);
-        }
-    }
-
     priv->list_consoles = json_object();
 
     /*
@@ -379,11 +356,6 @@ PRIVATE void mt_destroy(hgobj gobj)
     PRIVATE_DATA *priv = gobj_priv_data(gobj);
 
     JSON_DECREF(priv->list_consoles);
-
-    if(priv->audit_file) {
-        rotatory_close(priv->audit_file);
-        priv->audit_file = 0;
-    }
 
     remove_pid_file();
 }
@@ -1040,40 +1012,6 @@ PRIVATE int delete_consoles_on_disconnection(hgobj gobj, json_t *kw, hgobj src_)
         }
     }
 
-    return 0;
-}
-
-/***************************************************************************
- *
- ***************************************************************************/
-PRIVATE int audit_command_cb(const char *command, json_t *kw, void *user_data)
-{
-    hgobj gobj = user_data;
-    PRIVATE_DATA *priv = gobj_priv_data(gobj);
-
-    if(priv->audit_file) {
-        if(!kw) {
-            kw = json_object();
-        } else {
-            KW_INCREF(kw);
-        }
-        char fecha[32];
-        current_timestamp(fecha, sizeof(fecha));
-        json_t *jn_cmd = json_pack("{s:s, s:s, s:o}",
-            "command", command,
-            "date", fecha,
-            "kw", kw
-        );
-        if(jn_cmd) {
-            char *audit = json2str(jn_cmd);
-            if(audit) {
-                rotatory_write(priv->audit_file, LOG_AUDIT, audit, strlen(audit));
-                rotatory_write(priv->audit_file, LOG_AUDIT, "\n", 1);  // double new line: the separator field
-                gbmem_free(audit);
-            }
-            json_decref(jn_cmd);
-        }
-    }
     return 0;
 }
 
