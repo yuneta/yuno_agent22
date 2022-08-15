@@ -1300,7 +1300,6 @@ PRIVATE const EVENT input_events[] = {
     {"EV_TTY_CLOSE",        0,  0,  0},
     {"EV_WRITE_TTY",        0,  0,  0},
     {"EV_TIMEOUT",          0,  0,  0},
-    {"EV_FINAL_COUNT",      0,  0,  0},
     {"EV_STOPPED",          0,  0,  0},
     // internal
     {NULL, 0, 0, 0}
