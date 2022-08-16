@@ -664,8 +664,6 @@ PRIVATE int write_data_to_pty(hgobj gobj, GBUFFER *gbuf)
             "msg",          "%s", "uv_req_write ALREADY ACTIVE",
             NULL
         );
-        GBUF_DECREF(gbuf);
-        return -1;
     }
 
     priv->uv_req_write_active = 1;
