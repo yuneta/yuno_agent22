@@ -340,6 +340,8 @@ int main(int argc, char *argv[])
 
 //     set_auto_kill_time(7);
 
+gobj_set_deep_tracing(1); // TODO TEST
+
     /*------------------------------------------------*
      *          Start yuneta
      *------------------------------------------------*/
