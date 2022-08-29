@@ -339,7 +339,7 @@ int main(int argc, char *argv[])
     gobj_set_gclass_no_trace(GCLASS_TIMER, "machine", TRUE);
 
 //     set_auto_kill_time(7);
-gobj_set_deep_tracing(1); // TODO TEST
+//gobj_set_deep_tracing(1); // TODO TEST
 
     /*------------------------------------------------*
      *          Start yuneta
