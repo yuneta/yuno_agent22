@@ -672,6 +672,8 @@ PRIVATE int write_data_to_pty(hgobj gobj, GBUFFER *gbuf)
             "msg",          "%s", "uv_req_write ALREADY ACTIVE",
             NULL
         );
+        // TODO enqueue or use dynamic uv_req_write
+        return -1;
     }
 
     priv->uv_req_write_active = 1;
@@ -703,6 +705,7 @@ PRIVATE int write_data_to_pty(hgobj gobj, GBUFFER *gbuf)
         on_write_cb
     );
     if(ret < 0) {
+        priv->uv_req_write_active = 0;
         log_error(0,
             "gobj",         "%s", gobj_full_name(gobj),
             "function",     "%s", __FUNCTION__,
