@@ -642,6 +642,14 @@ PRIVATE void on_write_cb(uv_write_t* req, int status)
     }
 
     if(status != 0) {
+        log_error(LOG_OPT_TRACE_STACK,
+            "gobj",         "%s", gobj_full_name(gobj),
+            "function",     "%s", __FUNCTION__,
+            "msgset",       "%s", MSGSET_OPERATIONAL_ERROR,
+            "msg",          "%s", "on_write_cb FAILED",
+            "status",       "%d", status,
+            NULL
+        );
         if(gobj_is_running(gobj)) {
             gobj_stop(gobj); // auto-stop
         }
@@ -718,7 +726,6 @@ PRIVATE int write_data_to_pty(hgobj gobj, GBUFFER *gbuf)
             gobj_short_name(gobj)
         );
     }
-
     return 0;
 }
 
