@@ -676,6 +676,7 @@ PRIVATE void on_write_cb(uv_write_t* req, int status)
     if(gbuf) {
         dl_delete(&priv->dl_tx, gbuf, 0);
         write_data_to_pty(gobj, gbuf);
+        GBUF_DECREF(gbuf);
     }
 }
 
