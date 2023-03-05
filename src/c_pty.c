@@ -710,7 +710,6 @@ PRIVATE int write_data_to_pty(hgobj gobj, GBUFFER *gbuf)
         on_write_cb
     );
     if(ret < 0) {
-        priv->uv_req_write_active = 0;
         log_error(0,
             "gobj",         "%s", gobj_full_name(gobj),
             "function",     "%s", __FUNCTION__,
@@ -720,6 +719,7 @@ PRIVATE int write_data_to_pty(hgobj gobj, GBUFFER *gbuf)
             "ln",           "%d", ln,
             NULL
         );
+        priv->uv_req_write_active = 0;
         if(gobj_is_running(gobj)) {
             gobj_stop(gobj); // auto-stop
         }
@@ -734,6 +734,7 @@ PRIVATE int write_data_to_pty(hgobj gobj, GBUFFER *gbuf)
             gobj_short_name(gobj)
         );
     }
+
     return 0;
 }
 
