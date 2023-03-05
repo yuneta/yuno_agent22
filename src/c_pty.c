@@ -53,7 +53,7 @@ SDATA (ASN_BOOLEAN,     "no_output",            0,          0,      "Mirror, onl
 SDATA (ASN_UNSIGNED,    "rows",                 SDF_RD,     24,     "Rows"),
 SDATA (ASN_UNSIGNED,    "cols",                 SDF_RD,     80,     "Columns"),
 SDATA (ASN_OCTET_STR,   "cwd",                  SDF_RD,     "",     "Current work directory"),
-SDATA (ASN_UNSIGNED,    "max_tx_queue",         SDF_WR,     0,      "Maximum messages in tx queue. Default is 0: no limit."),
+SDATA (ASN_UNSIGNED,    "max_tx_queue",         SDF_WR,     32,     "Maximum messages in tx queue. Default is 0: no limit."),
 SDATA (ASN_POINTER,     "user_data",            0,          0,      "user data"),
 SDATA (ASN_POINTER,     "user_data2",           0,          0,      "more user data"),
 SDATA (ASN_POINTER,     "subscriber",           0,          0,      "subscriber of output-events. If it's null then subscriber is the parent."),
