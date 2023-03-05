@@ -696,7 +696,7 @@ PRIVATE int write_data_to_pty(hgobj gobj, GBUFFER *gbuf)
         }
     }
     uv_buf_t b[] = {
-        { .base = bf, .len = ln}
+        {.base = bf, .len = ln}
     };
     uint32_t trace = gobj_trace_level(gobj);
     if((trace & TRACE_UV)) {
