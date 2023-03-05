@@ -53,6 +53,7 @@ SDATA (ASN_BOOLEAN,     "no_output",            0,          0,      "Mirror, onl
 SDATA (ASN_UNSIGNED,    "rows",                 SDF_RD,     24,     "Rows"),
 SDATA (ASN_UNSIGNED,    "cols",                 SDF_RD,     80,     "Columns"),
 SDATA (ASN_OCTET_STR,   "cwd",                  SDF_RD,     "",     "Current work directory"),
+SDATA (ASN_UNSIGNED,    "max_tx_queue",         SDF_WR,     0,      "Maximum messages in tx queue. Default is 0: no limit."),
 SDATA (ASN_POINTER,     "user_data",            0,          0,      "user data"),
 SDATA (ASN_POINTER,     "user_data2",           0,          0,      "more user data"),
 SDATA (ASN_POINTER,     "subscriber",           0,          0,      "subscriber of output-events. If it's null then subscriber is the parent."),
@@ -98,6 +99,9 @@ typedef struct _PRIVATE_DATA {
     pid_t pty;      // file descriptor of pseudoterminal
     int pid;        // child pid
 
+    uint32_t max_tx_queue;
+    dl_list_t dl_tx;
+
     char slave_name[NAME_MAX+1];
     char bfinput[BFINPUT_SIZE];
 } PRIVATE_DATA;
@@ -123,14 +127,16 @@ PRIVATE void mt_create(hgobj gobj)
     priv->argv[0] = (char *)gbmem_strdup(process);
     priv->argv[1] = 0;
 
+    dl_init(&priv->dl_tx);
     priv->pty = -1;
 
     /*
      *  Do copy of heavy used parameters, for quick access.
      *  HACK The writable attributes must be repeated in mt_writing method.
      */
-    SET_PRIV(rows,      gobj_read_uint32_attr)
-    SET_PRIV(cols,      gobj_read_uint32_attr)
+    SET_PRIV(rows,          gobj_read_uint32_attr)
+    SET_PRIV(cols,          gobj_read_uint32_attr)
+    SET_PRIV(max_tx_queue,  gobj_read_uint32_attr)
 
     hgobj subscriber = (hgobj)gobj_read_pointer_attr(gobj, "subscriber");
     if(!subscriber)
@@ -146,6 +152,11 @@ PRIVATE void mt_destroy(hgobj gobj)
 {
     PRIVATE_DATA *priv = gobj_priv_data(gobj);
 
+    size_t size = dl_size(&priv->dl_tx);
+    if(size) {
+        dl_flush(&priv->dl_tx, (fnfree)gbuf_decref);
+    }
+
     GBMEM_FREE(priv->argv[0]);
 }
 
@@ -154,10 +165,10 @@ PRIVATE void mt_destroy(hgobj gobj)
  ***************************************************************************/
 PRIVATE void mt_writing(hgobj gobj, const char *path)
 {
-//     PRIVATE_DATA *priv = gobj_priv_data(gobj);
-//
-//     IF_EQ_SET_PRIV(sockname,                      gobj_read_str_attr)
-//     END_EQ_SET_PRIV()
+     PRIVATE_DATA *priv = gobj_priv_data(gobj);
+
+     IF_EQ_SET_PRIV(max_tx_queue,   gobj_read_uint32_attr)
+     END_EQ_SET_PRIV()
 }
 
 /***************************************************************************
@@ -660,6 +671,12 @@ PRIVATE void on_write_cb(uv_write_t* req, int status)
         }
         return;
     }
+
+    GBUFFER *gbuf = dl_first(&priv->dl_tx);
+    if(gbuf) {
+        dl_delete(&priv->dl_tx, gbuf, 0);
+        write_data_to_pty(gobj, gbuf);
+    }
 }
 
 /***************************************************************************
@@ -738,6 +755,38 @@ PRIVATE int write_data_to_pty(hgobj gobj, GBUFFER *gbuf)
     return 0;
 }
 
+/***************************************************************************
+ *  Enqueue data
+ ***************************************************************************/
+PRIVATE int enqueue_write(hgobj gobj, GBUFFER *gbuf)
+{
+    PRIVATE_DATA *priv = gobj_priv_data(gobj);
+
+    static int counter = 0;
+    size_t size = dl_size(&priv->dl_tx);
+
+    if(priv->max_tx_queue && size >= priv->max_tx_queue) {
+        if((counter % priv->max_tx_queue)==0) {
+            log_error(0,
+                "gobj",         "%s", gobj_full_name(gobj),
+                "function",     "%s", __FUNCTION__,
+                "msgset",       "%s", MSGSET_INTERNAL_ERROR,
+                "msg",          "%s", "Tiro mensaje tx",
+                "counter",      "%d", (int)counter,
+                NULL
+            );
+        }
+        counter++;
+        GBUFFER *gbuf_first = dl_first(&priv->dl_tx);
+        dl_delete(&priv->dl_tx, gbuf_first, 0);
+        gbuf_decref(gbuf_first);
+    }
+
+    dl_add(&priv->dl_tx, gbuf);
+
+    return 0;
+}
+
 
 
 
@@ -753,9 +802,16 @@ PRIVATE int write_data_to_pty(hgobj gobj, GBUFFER *gbuf)
  ***************************************************************************/
 PRIVATE int ac_write_tty(hgobj gobj, const char *event, json_t *kw, hgobj src)
 {
+    PRIVATE_DATA *priv = gobj_priv_data(gobj);
     GBUFFER *gbuf = (GBUFFER *)(size_t)kw_get_int(kw, "gbuffer", 0, TRUE);
 
-    write_data_to_pty(gobj, gbuf);
+    if(priv->uv_req_write_active) {
+trace_msg("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"); // TODO TEST
+        gbuf_incref(gbuf); // Quédate una copia
+        enqueue_write(gobj, gbuf);
+    } else {
+        write_data_to_pty(gobj, gbuf);
+    }
 
     KW_DECREF(kw);
     return 0;
