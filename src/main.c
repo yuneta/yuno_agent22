@@ -149,31 +149,9 @@ PRIVATE char variable_config[]= "\
                         'roles^root^users',                         \n\
                         'roles^owner^users'                         \n\
                     ]                                               \n\
-                },                                                  \n\
-                {                                                   \n\
-                    'id': 'ginsmar@gmail.com',                      \n\
-                    'roles': [                                      \n\
-                        'roles^owner^users',                        \n\
-                        'roles^root^users'                          \n\
-                    ]                                               \n\
-                },                                                  \n\
-                {                                                   \n\
-                    'id': 'ginsmar@mulesol.es',                     \n\
-                    'roles': [                                      \n\
-                        'roles^owner^users',                        \n\
-                        'roles^root^users'                          \n\
-                    ]                                               \n\
-                },                                                  \n\
-                {                                                   \n\
-                    'id': 'cochoa@mulesol.es',                      \n\
-                    'roles': [                                      \n\
-                        'roles^owner^users',                        \n\
-                        'roles^root^users'                          \n\
-                    ]                                               \n\
                 }                                                   \n\
             ]                                                       \n\
-        },                                                          \n\
-        'Authz.jwt_public_key': '-----BEGIN PUBLIC KEY-----\\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAj0ZkOtmWlsDLJiJWXTEJ\\ntyXxlVY7iLseG982eaFgDaAdtE3Z5J+WDvzni7v4MPR55oMyi/oeAvTKIsVOv3aw\\nobRJ/Mr45Qh6I0j4Hn+rFfPW4wbmxRmFeyRrfMzYAZZoibZ3m7EFlj2RINvJFIgE\\npIoTf4UneXmlSDbUU9MTZe1mULfCfEZVa5V9W86BluAAib1mYJU7aJ20KPkbQAvW\\nXqC82AE9ga66HnQ2n56mv1kPyvNGKvvM6vD2IXQeLIYgudYT2KlGKd8isrOEkrno\\nXtPKMSaRhVccO73Wbo7krhjGV5MTpMvvOM+wDprslFkODm0MORsHORVxfcVGWSpU\\ngQIDAQAB\\n-----END PUBLIC KEY-----\\n'  \n\
+        }                                                           \n\
     },                                                              \n\
     'services': [                                                   \n\
         {                                               \n\
