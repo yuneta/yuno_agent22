@@ -1,7 +1,7 @@
 ##############################################
 #   CMake
 ##############################################
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.11)
 project(yuneta_agent22 C)
 include(CheckIncludeFiles)
 include(CheckSymbolExists)
